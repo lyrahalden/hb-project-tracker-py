@@ -74,8 +74,6 @@ def get_project_by_title(title):
     print "Project title: {title} \nDescription: {description} \nMaximum Grade: {max_grade}".format(
         title=row[0], description=row[1], max_grade=row[2])
 
-    pass
-
 
 def get_grade_by_github_title(github, title):
     """Print grade student received for a project."""
@@ -113,6 +111,41 @@ def assign_grade(github, title, grade):
         grade=grade, github=github, title=title)
 
 
+def make_new_project(title, description, max_grade):
+    """Add a new project and print confirmation.
+    """
+
+    QUERY = """
+            INSERT INTO projects (title, description, max_grade)
+            VALUES (:title, :description, :max_grade)
+            """
+
+    db.session.execute(QUERY, {'title': title,
+                               'description': description,
+                               'max_grade': max_grade})
+    db.session.commit()
+
+    print "Successfully added project: {title}".format(
+        title=title)
+
+# def get_all_grades_by_github(github):
+#     """Print all grades the student received."""
+
+#     QUERY = """
+#         SELECT student_github, project_title, grade
+#         FROM grades
+#         WHERE student_github = :github
+#         """
+
+#     cursor = db.session.execute(QUERY, {'title': title, 'github': github})
+
+#     row = cursor.fetchone()
+
+#     print "Student github: {github} \nProject title: {title} \nGrade: {grade}".format(
+#         github=row[0], title=row[1], grade=row[2])
+
+
+
 def handle_input():
     """Main loop.
 
@@ -130,7 +163,6 @@ def handle_input():
         if command == "student":
             github = args[0]
             get_student_by_github(github)
-
         elif command == "new_student":
             first_name, last_name, github = args  # unpack!
             make_new_student(first_name, last_name, github)
@@ -143,6 +175,11 @@ def handle_input():
         elif command == "grade":
             github, title = args
             get_grade_by_github_title(github, title)
+        elif command == "new_project":
+            title = args[0]
+            max_grade = args[-1]
+            description = " ".join(args[1:-1])
+            make_new_project(title, description, max_grade)
         else:
             if command != "quit":
                 print "Invalid Entry. Try again."
